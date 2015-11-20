@@ -806,10 +806,13 @@ static int32 A21_IrqEnable(
 			  BBNAME,mSlot,enable));
 
 	if( mSlot < A21_NBR_OF_MMODS ){
-		if( enable )
+		if( enable ) {
 			MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, 0x2 ); /* set IEN */
+		}
 		else
+		{
 			MCLRMASK_D8( h->mmod[mSlot].vCtrlBase, 0, 0x2 ); /* clear IEN */
+		}
 	}
 
 	return 0;
