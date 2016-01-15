@@ -37,8 +37,18 @@ extern "C" {
 
 #define BBNAME "A21"
 
-#define A21_MMOD_BRIDGE_DEV_NO	0x0 /* PCI device number on bus 0 */
+/* under linux and VxWorks the bus nr. is different (domain is same, b/c of the hw connection of FPGA to PCIE3 ctrl. */
+#ifdef VXWORKS
+# define A21_MMOD_BRIDGE_BUS_NO		1	/* vxworks */	
+#else
+# define A21_MMOD_BRIDGE_BUS_NO		5	/* linux */
+#endif
+
+#define A21_MMOD_BRIDGE_DEV_NO		0x0 /* PCI device number on bus 0 */
 #define A21_MMOD_BRIDGE_DOMAIN_NO	0x2 /* PCI device number on domain 2 */
+
+
+
 #define A21_MMOD_BRIDGE_VEN_ID	0x1a88 /* MEN */
 #define A21_MMOD_BRIDGE_DEV_ID	0x4d45 /* Chameleon FPGA */
 
@@ -47,10 +57,18 @@ extern "C" {
 #define A21_MMOD_A24_SLOT_OFFSET	0x01000000 /* addr off between M-mod slots */
 
   /* offsets relative to each M-module slots base address */
-#define A21_MMOD_A24_BASE	0x01000000
-#define A21_MMOD_A08_BASE	0x00001400
+#define A21_MMOD_A24_BASE		0x01000000
+#define A21_MMOD_A08_BASE		0x00001400
 #define A21_MMOD_IACK_BASE		0x00001500
 #define A21_MMOD_CTRL_BASE		0x00001701
+
+#define A21_MMOD_CTRL_IRQ		0x01			/* IRQ pending bit of IRQ control reg */
+#define A21_MMOD_CTRL_IEN		0x02			/* IRQ enable bit of IRQ control reg */
+#define A21_MMOD_CTRL_TOUT		0x08			/* Timeout bit of IRQ control reg */
+
+#define A21_MMOD_CTRL_BASE		0x00001701
+#define A21_MMOD_CTRL_BASE		0x00001701
+
 
 #define A21_CTRL_SIZE			0x2
   /*---------------------------------------------------------------------------+

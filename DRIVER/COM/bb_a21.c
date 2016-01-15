@@ -13,9 +13,9 @@
  *
  *				 device
  *               -----------------------------------------------------------
- *               0x0	 M-Module 0	
+ *               0x0	 M-Module 0
  *               0x1	 M-Module 1
- *               0x2	 M-Module 2	
+ *               0x2	 M-Module 2
  *				 0x1000	 QSPI
  *
  *     			 The onboard PC-MIP and PMC slots are handled by the
@@ -77,7 +77,6 @@ static const char RCSid[]="$Id: bb_a21.c,v 1.6 2006/12/20 12:23:57 ufranke Exp $
 #define DBG_MYLEVEL		h->debugLevel
 #define DBH             h->debugHdl
 
-
 #define CFIDX(i) ((i)<BBIS_SLOTS_ONBOARDDEVICE_START ? (i):((i)-BBIS_SLOTS_ONBOARDDEVICE_START+3))
 
 /* include files which need BBIS_HANDLE */
@@ -94,7 +93,7 @@ typedef struct {
 	int32   irqLevel;
 	int32   irqMode;
 } A21_SLOT_CFG;
-	
+
 /*-----------------------------------------+
 |  GLOBALS                                 |
 +-----------------------------------------*/
@@ -308,10 +307,12 @@ static int32 A21_Init(
 	/*-----------------------------------+
 	|  Check if M-module bridge present  |
 	+-----------------------------------*/
-	error = OSS_PciGetConfig( h->osHdl, OSS_MERGE_BUS_DOMAIN(5,2), A21_MMOD_BRIDGE_DEV_NO, 0,
-							  OSS_PCI_VENDOR_ID, &venId );
-	error = OSS_PciGetConfig( h->osHdl, OSS_MERGE_BUS_DOMAIN(5,2), A21_MMOD_BRIDGE_DEV_NO, 0,
-							  OSS_PCI_DEVICE_ID, &devId );
+	error = OSS_PciGetConfig( h->osHdl,
+								OSS_MERGE_BUS_DOMAIN( A21_MMOD_BRIDGE_BUS_NO, A21_MMOD_BRIDGE_DOMAIN_NO),
+								A21_MMOD_BRIDGE_DEV_NO, 0, OSS_PCI_VENDOR_ID, &venId );
+	error = OSS_PciGetConfig( h->osHdl,
+								OSS_MERGE_BUS_DOMAIN( A21_MMOD_BRIDGE_BUS_NO, A21_MMOD_BRIDGE_DOMAIN_NO),
+								A21_MMOD_BRIDGE_DEV_NO, 0, OSS_PCI_DEVICE_ID, &devId );
 	if( error ){
 		DBGWRT_ERR((DBH, "*** %s_BrdInit: Can't read PCI ven/dev Id\n",
 					BBNAME ));
@@ -319,7 +320,7 @@ static int32 A21_Init(
 	}
 
 	if( venId == 0xffff && devId == 0xffff ){
-		DBGWRT_ERR((DBH, "*** %s_BrdInit: PCI->M-mod bridge not present!\n",
+		DBGWRT_ERR((DBH, "*** %s_BrdInit: PCI->M-mod bridge not here!\n",
 					BBNAME));
 		return( Cleanup(h,ERR_BBIS_ILL_ID));
 	}
@@ -335,7 +336,8 @@ static int32 A21_Init(
 	|  Determine base address of M-module regs  |
 	+------------------------------------------*/
 	error = OSS_BusToPhysAddr( h->osHdl, OSS_BUSTYPE_PCI, &h->physBase,
-							   OSS_MERGE_BUS_DOMAIN(5,2), A21_MMOD_BRIDGE_DEV_NO, 0, 0 ); /* BAR0 */
+							   OSS_MERGE_BUS_DOMAIN( A21_MMOD_BRIDGE_BUS_NO, A21_MMOD_BRIDGE_DOMAIN_NO),
+							   A21_MMOD_BRIDGE_DEV_NO, 0, 0 ); /* BAR0 */
 	if( error ){
 		DBGWRT_ERR((DBH, "*** %s_BrdInit: Can't read BAR0 Id\n",
 					BBNAME ));
@@ -347,10 +349,9 @@ static int32 A21_Init(
 	|  Assign resources for control regs  |
 	+------------------------------------*/
 	for( i=0; i<A21_NBR_OF_MMODS; i++ ){
-		h->res[i].type = OSS_RES_MEM;
-		h->res[i].u.mem.physAddr = (void *)((u_int32)h->physBase +
-			(A21_MMOD_A08_SLOT_OFFSET*i) + A21_MMOD_CTRL_BASE);
-		h->res[i].u.mem.size = A21_CTRL_SIZE;
+		h->res[i].type 				= OSS_RES_MEM;
+		h->res[i].u.mem.physAddr 	= (void *)((u_int32)h->physBase + (A21_MMOD_A08_SLOT_OFFSET*i) + A21_MMOD_CTRL_BASE);
+		h->res[i].u.mem.size 		= A21_CTRL_SIZE;
 	}
 
     /* assign the resources */
@@ -365,8 +366,7 @@ static int32 A21_Init(
 	for( i=0; i<A21_NBR_OF_MMODS; i++ ){
 		error = OSS_MapPhysToVirtAddr(
 				h->osHdl,
-				(void*)( (u_int32)h->physBase +
-						 (A21_MMOD_A08_SLOT_OFFSET*i) + A21_MMOD_CTRL_BASE),
+				(void*)( (u_int32)h->physBase + (A21_MMOD_A08_SLOT_OFFSET*i) + A21_MMOD_CTRL_BASE),
 				A21_CTRL_SIZE,
 				OSS_ADDRSPACE_MEM,
 				OSS_BUSTYPE_PCI,
@@ -378,9 +378,10 @@ static int32 A21_Init(
 	}
 
     /* get interrupt line */
-	error = OSS_PciGetConfig( h->osHdl, OSS_MERGE_BUS_DOMAIN(5,2), A21_MMOD_BRIDGE_DEV_NO, 0,
-							   OSS_PCI_INTERRUPT_LINE, &h->irqLevel );
-	
+	error = OSS_PciGetConfig( h->osHdl, OSS_MERGE_BUS_DOMAIN(A21_MMOD_BRIDGE_BUS_NO,A21_MMOD_BRIDGE_DOMAIN_NO),
+								A21_MMOD_BRIDGE_DEV_NO, 0,
+								OSS_PCI_INTERRUPT_LINE, &h->irqLevel );
+
 	/* no interrupt connected */
 	if( error || (h->irqLevel == 0xff) )
 		return Cleanup(h,ERR_BBIS_NO_IRQ);
@@ -392,9 +393,8 @@ static int32 A21_Init(
 
 	DBGWRT_2((DBH," IRQ level=0x%x, vector=0x%x\n",
 			  h->irqLevel, h->irqVector));
-	
 
-    return 0;
+	return 0;
 }
 
 /****************************** A21_BrdInit **********************************
@@ -413,8 +413,8 @@ static int32 A21_BrdInit(
 
 	DBGWRT_1((DBH, "BB - %s_BrdInit\n",BBNAME));
 
-	for( mSlot=0; mSlot<A21_NBR_OF_MMODS; mSlot++ ){
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, 0xc );	/* fast bit set */
+	for( mSlot=0; mSlot < A21_NBR_OF_MMODS; mSlot++ ){
+		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
 	return 0;
@@ -439,7 +439,8 @@ static int32 A21_BrdExit(
 	DBGWRT_1((DBH, "BB - %s_BrdExit\n",BBNAME));
 
 	for( mSlot=0; mSlot<A21_NBR_OF_MMODS; mSlot++ ){
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, 0xc );	/* fast bit set */
+		/* Timeout and IRQ pending bit are cleared by writing '1' */
+		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
     return 0;
@@ -552,16 +553,16 @@ static int32 A21_BrdInfo(
 	case BBIS_BRDINFO_NUM_SLOTS:
 	{
 		u_int32 *numSlot = va_arg( argptr, u_int32* );
-		
+
 		*numSlot = BRD_NBR_OF_BRDDEV;
 		break;
 	}
-		
+
 	/* bus type */
 	case BBIS_BRDINFO_BUSTYPE:
 	{
 		u_int32 *busType = va_arg( argptr, u_int32* );
-		
+
 		*busType = OSS_BUSTYPE_PCI;
 		break;
 	}
@@ -614,7 +615,7 @@ static int32 A21_BrdInfo(
  *                Code                      Description
  *                ------------------------  ------------------------------
  *                BBIS_CFGINFO_BUSNBR       bus number
- *				  BBIS_CFGINFO_PCI_DEVNBR	PCI device number	
+ *				  BBIS_CFGINFO_PCI_DEVNBR	PCI device number
  *                BBIS_CFGINFO_IRQ          interrupt parameters
  *                BBIS_CFGINFO_EXP          exception interrupt parameters
  *                BBIS_CFGINFO_PCI_DOMAIN	PCI domain number
@@ -669,7 +670,7 @@ static int32 A21_CfgInfo(
 			*busNbr = G_slotCfg[CFIDX(mSlot)].pciBusNbr;
 		else
 			*busNbr = 5;		/* M-module bridge on bus 0 */ /*FIXME beatify magic value */
-		
+
 		break;
 	}
 
@@ -678,7 +679,7 @@ static int32 A21_CfgInfo(
 	{
 		u_int32 mSlot      = va_arg( argptr, u_int32 );
 		u_int32 *pciDevNbr = va_arg( argptr, u_int32* );
-		
+
 		if ( G_slotCfg[CFIDX(mSlot)].pciDevNbr >= 0 )
 			*pciDevNbr = G_slotCfg[CFIDX(mSlot)].pciDevNbr;
 		else
@@ -726,7 +727,7 @@ static int32 A21_CfgInfo(
 		}
 		DBGWRT_2((DBH, " dev:%d : IRQ mode=0x%x, level=0x%x, vector=0x%x\n",
 				mSlot, *mode, *level, *vector));
-			
+
 		if (status) {
 			va_end( argptr );
 			return status;
@@ -757,7 +758,7 @@ static int32 A21_CfgInfo(
 		u_int32 *mode   = va_arg( argptr, u_int32* );
 		u_int32 *dummy;
 		u_int32 dummy2;
-		
+
 		dummy = vector;
 		dummy = level;
 		dummy2 = mSlot;
@@ -802,21 +803,22 @@ static int32 A21_IrqEnable(
     u_int32         mSlot,
     u_int32         enable )
 {
-    DBGWRT_1((DBH, "BB - %s_IrqEnable: mSlot=%d enable=%d\n",
-			  BBNAME,mSlot,enable));
+    u_int8 val=0;
 
 	if( mSlot < A21_NBR_OF_MMODS ){
-		if( enable ) {
-			MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, 0x2 ); /* set IEN */
+		if( enable )
+		{
+			MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_IEN );
 		}
 		else
 		{
-			MCLRMASK_D8( h->mmod[mSlot].vCtrlBase, 0, 0x2 ); /* clear IEN */
+			MCLRMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_IEN );
 		}
 	}
 
 	return 0;
 }
+
 
 /****************************** A21_IrqSrvInit *******************************
  *
@@ -835,8 +837,8 @@ static int32 A21_IrqSrvInit(
     u_int32         mSlot)
 {
 	IDBGWRT_1((DBH, "BB - %s_IrqSrvInit: mSlot=%d\n",BBNAME,mSlot));
-	
-	if( (mSlot==0x1000) || (MREAD_D8( h->mmod[CFIDX(mSlot)].vCtrlBase, 0 ) & 0x1 )) 
+
+	if( (mSlot==0x1000) || (MREAD_D8( h->mmod[CFIDX(mSlot)].vCtrlBase, 0 ) & A21_MMOD_CTRL_IRQ ))
 	{
 #if defined(A21_USE_MSI)
 		A21_IrqEnable(h, mSlot, 0);
@@ -863,8 +865,12 @@ static void A21_IrqSrvExit(
     u_int32         mSlot )
 {
 	IDBGWRT_1((DBH, "BB - %s_IrqSrvExit: mSlot=%d\n",BBNAME,mSlot));
+
+	/* clear interrupt */
+	MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_IRQ );
+
 #if defined(A21_USE_MSI)
-	if( (mSlot==0x1000) || !(MREAD_D8( h->mmod[CFIDX(mSlot)].vCtrlBase, 0 ) & 0x1 ))
+	if( (mSlot==0x1000) || !(MREAD_D8( h->mmod[CFIDX(mSlot)].vCtrlBase, 0 ) & A21_MMOD_CTRL_IRQ ))
 		A21_IrqEnable(h, mSlot, 1);
 #endif
 }
@@ -1192,7 +1198,7 @@ static char* Ident( void )		/* nodoc */
  *
  *		          NOTE: The h handle is invalid after calling this
  *                      function.
- *			
+ *
  *---------------------------------------------------------------------------
  *  Input......:  h    pointer to board handle structure
  *                retCode	return value
@@ -1220,7 +1226,7 @@ static int32 Cleanup(
 							   A21_CTRL_SIZE, OSS_ADDRSPACE_MEM );
 	}
 
-#ifdef OSS_HAS_UNASSIGN_RESOURCES	
+#ifdef OSS_HAS_UNASSIGN_RESOURCES
 	if( h->resourcesAssigned )
 		OSS_UnAssignResources( h->osHdl, OSS_BUSTYPE_PCI, 0,
 							   A21_NBR_OF_MMODS, h->res );
