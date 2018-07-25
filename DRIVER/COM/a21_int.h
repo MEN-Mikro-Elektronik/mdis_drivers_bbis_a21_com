@@ -136,8 +136,8 @@ extern "C" {
   static int32 A21_ClrMIface(BBIS_HANDLE*,u_int32);
   static int32 A21_GetMAddr(BBIS_HANDLE*, u_int32, u_int32, u_int32, void**, u_int32*);
   /* getstat/setstat */
-  static int32 A21_SetStat(BBIS_HANDLE*, u_int32, int32, int32);
-  static int32 A21_GetStat(BBIS_HANDLE*, u_int32, int32, int32*);
+  static int32 A21_SetStat(BBIS_HANDLE*, u_int32, int32, INT32_OR_64);
+  static int32 A21_GetStat(BBIS_HANDLE*, u_int32, int32, INT32_OR_64*);
   /* unused */
   static int32 A21_Unused(void);
   /* miscellaneous */
