@@ -4,8 +4,6 @@
  *      Project: A21 board handler
  *
  *       Author: kp
- *        $Date: 2006/12/20 12:23:57 $
- *    $Revision: 1.6 $
  *
  *  Description: A21 board handler
  *
@@ -44,7 +42,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-static const char RCSid[]="$Id: bb_a21.c,v 1.6 2006/12/20 12:23:57 ufranke Exp $";
 
 #define _NO_BBIS_HANDLE		/* bb_defs.h: don't define BBIS_HANDLE struct */
 
@@ -72,6 +69,8 @@ static const char RCSid[]="$Id: bb_a21.c,v 1.6 2006/12/20 12:23:57 ufranke Exp $
 /* include files which need BBIS_HANDLE */
 #include <MEN/bb_entry.h>	/* bbis jumptable	  */
 #include <MEN/bb_a21.h>		/* A21 bbis header file	  */
+
+static const char IdentString[]=MENT_XSTR(MAK_REVISION);
 
 typedef struct {
 	u_int32 devBusType;
@@ -1177,9 +1176,7 @@ static int32 A21_Unused( void )		/* nodoc */
  ****************************************************************************/
 static char* Ident( void )		/* nodoc */
 {
-	return (
-		"A21 - A21"
-		"  Base Board Handler: $Id: bb_a21.c,v 1.6 2006/12/20 12:23:57 ufranke Exp $" );
+	return( (char*) IdentString );
 }
 
 /********************************* Cleanup **********************************

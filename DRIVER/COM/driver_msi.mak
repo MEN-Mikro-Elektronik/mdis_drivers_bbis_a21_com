@@ -23,12 +23,17 @@
 
 
 MAK_NAME=a21_msi
+# the next line is updated during the MDIS installation
+STAMPED_REVISION="mdis_drivers_bbis_a21_com_01_12-0-gbad52d8-dirty_2019-02-21"
+
+DEF_REVISION=MAK_REVISION=$(STAMPED_REVISION)
 
 MAK_LIBS=$(LIB_PREFIX)$(MEN_LIB_DIR)/desc$(LIB_SUFFIX)	\
          $(LIB_PREFIX)$(MEN_LIB_DIR)/oss$(LIB_SUFFIX)	\
 	 	 $(LIB_PREFIX)$(MEN_LIB_DIR)/dbg$(LIB_SUFFIX)
 
 MAK_SWITCH=$(SW_PREFIX)MAC_MEM_MAPPED \
+		$(SW_PREFIX)$(DEF_REVISION) \
            $(SW_PREFIX)A21_USE_MSI
 
 MAK_INCL=$(MEN_INC_DIR)/bb_a21.h	\

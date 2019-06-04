@@ -3,8 +3,6 @@
  *         Name: a21_int.h
  *
  *       Author: kp
- *        $Date: 2001/04/11 11:05:48 $
- *    $Revision: 1.1 $
  *
  *  Description: Internal header file for A21 BBIS driver
  *
