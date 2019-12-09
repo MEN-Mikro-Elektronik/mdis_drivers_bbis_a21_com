@@ -525,9 +525,7 @@ static int32 A21_BrdInfo(
 			/* supported */
 			case BBIS_FUNC_IRQENABLE:
 			case BBIS_FUNC_IRQSRVINIT:
-#if defined(A21_USE_MSI)
 			case BBIS_FUNC_IRQSRVEXIT:
-#endif
 				*used = TRUE;
 				break;
 			/* unsupported */
