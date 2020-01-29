@@ -404,7 +404,7 @@ static int32 A21_BrdInit(
 	DBGWRT_1((DBH, "BB - %s_BrdInit\n",BBNAME));
 
 	for( mSlot=0; mSlot < A21_NBR_OF_MMODS; mSlot++ ){
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
+		MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
 	return 0;
@@ -430,7 +430,7 @@ static int32 A21_BrdExit(
 
 	for( mSlot=0; mSlot<A21_NBR_OF_MMODS; mSlot++ ){
 		/* Timeout and IRQ pending bit are cleared by writing '1' */
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
+		MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
     return 0;
