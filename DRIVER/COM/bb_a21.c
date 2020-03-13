@@ -720,19 +720,19 @@ static int32 A21_CfgInfo(
 			return status;
 		}
 		break;
+	}
+			
+	/* pci domain number */
+	case BBIS_CFGINFO_PCI_DOMAIN:
+	{
+		u_int32 *pciDomainNbr = va_arg( argptr, u_int32* );
+		u_int32 mSlot      = va_arg( argptr, u_int32 );
 
-        /* pci domain number */
-		case BBIS_CFGINFO_PCI_DOMAIN:
-		{
-			u_int32 *pciDomainNbr = va_arg( argptr, u_int32* );
-			u_int32 mSlot      = va_arg( argptr, u_int32 );
-
-			if ( G_slotCfg[CFIDX(mSlot)].pciDevNbr >= 0 )
-				*pciDomainNbr = G_slotCfg[CFIDX(mSlot)].pciDomainNbr;
-			else
-				*pciDomainNbr = A21_MMOD_BRIDGE_DOMAIN_NO;
-			mSlot = mSlot; /* dummy access to avoid compiler warning */
-		}
+		if ( G_slotCfg[CFIDX(mSlot)].pciDevNbr >= 0 )
+			*pciDomainNbr = G_slotCfg[CFIDX(mSlot)].pciDomainNbr;
+		else
+			*pciDomainNbr = A21_MMOD_BRIDGE_DOMAIN_NO;
+		mSlot = mSlot; /* dummy access to avoid compiler warning */
 		break;
 	}
 
