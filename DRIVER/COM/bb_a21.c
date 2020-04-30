@@ -25,7 +25,7 @@
  *     Switches: _ONE_NAMESPACE_PER_DRIVER_
  *
  *---------------------------------------------------------------------------
- * Copyright 2001-2019, MEN Mikro Elektronik GmbH
+ * Copyright 2001-2020, MEN Mikro Elektronik GmbH
  ******************************************************************************/
 /*
  * This program is free software: you can redistribute it and/or modify
