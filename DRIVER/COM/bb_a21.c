@@ -25,7 +25,7 @@
  *     Switches: _ONE_NAMESPACE_PER_DRIVER_
  *
  *---------------------------------------------------------------------------
- * Copyright 2001-2019, MEN Mikro Elektronik GmbH
+ * Copyright 2001-2020, MEN Mikro Elektronik GmbH
  ******************************************************************************/
 /*
  * This program is free software: you can redistribute it and/or modify
@@ -403,7 +403,7 @@ static int32 A21_BrdInit(
 	DBGWRT_1((DBH, "BB - %s_BrdInit\n",BBNAME));
 
 	for( mSlot=0; mSlot < A21_NBR_OF_MMODS; mSlot++ ){
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
+		MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
 	return 0;
@@ -429,7 +429,7 @@ static int32 A21_BrdExit(
 
 	for( mSlot=0; mSlot<A21_NBR_OF_MMODS; mSlot++ ){
 		/* Timeout and IRQ pending bit are cleared by writing '1' */
-		MWRITE_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
+		MSETMASK_D8( h->mmod[mSlot].vCtrlBase, 0, A21_MMOD_CTRL_TOUT | A21_MMOD_CTRL_IRQ );
 	}
 
     return 0;
@@ -720,19 +720,19 @@ static int32 A21_CfgInfo(
 			return status;
 		}
 		break;
+	}
+			
+	/* pci domain number */
+	case BBIS_CFGINFO_PCI_DOMAIN:
+	{
+		u_int32 *pciDomainNbr = va_arg( argptr, u_int32* );
+		u_int32 mSlot      = va_arg( argptr, u_int32 );
 
-        /* pci domain number */
-		case BBIS_CFGINFO_PCI_DOMAIN:
-		{
-			u_int32 *pciDomainNbr = va_arg( argptr, u_int32* );
-			u_int32 mSlot      = va_arg( argptr, u_int32 );
-
-			if ( G_slotCfg[CFIDX(mSlot)].pciDevNbr >= 0 )
-				*pciDomainNbr = G_slotCfg[CFIDX(mSlot)].pciDomainNbr;
-			else
-				*pciDomainNbr = A21_MMOD_BRIDGE_DOMAIN_NO;
-			mSlot = mSlot; /* dummy access to avoid compiler warning */
-		}
+		if ( G_slotCfg[CFIDX(mSlot)].pciDevNbr >= 0 )
+			*pciDomainNbr = G_slotCfg[CFIDX(mSlot)].pciDomainNbr;
+		else
+			*pciDomainNbr = A21_MMOD_BRIDGE_DOMAIN_NO;
+		mSlot = mSlot; /* dummy access to avoid compiler warning */
 		break;
 	}
 
